@@ -1,11 +1,11 @@
 (ns {{project-name}}.utils
-  (:require {% for require in requires %}
-    {{require}}
+  (:require {% for req in require %}
+    {{req}}
     {% endfor %})
-  (:import {% for import in imports %}
-    {{import}}
+  (:import {% for imp in import %}
+    {{imp}}
     {% endfor %}))
 
-{% for fn in fns %}
-{{fn}}
+{% for fn in function %}
+{{fn|safe}}
 {% endfor%}

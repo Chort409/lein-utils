@@ -8,6 +8,5 @@
   :dependencies [[org.clojure/data.json "0.2.6"]
                  [selmer "1.0.4"]
                  [endophile "0.1.2"]
-                 [clj-http "2.1.0"]]
-  ;:main leiningen.utils
-  )
+                 [clj-http "2.1.0"]
+                 [commons-io/commons-io "2.5"]])
