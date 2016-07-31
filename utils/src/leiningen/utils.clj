@@ -29,13 +29,13 @@
         things-only-in-a))))
 
 (defn project-name-to-folder [project]
-  (str "src/" (str/replace (:name project) #"-" "_") "/utils.clj") )
+  (str "./src/clj/" (str/replace (:name project) #"-" "_") "/utils.clj"))
 
 (defn read-two-objects-from-trusted-string [^String string]
   (with-open [r (java.io.PushbackReader. (java.io.StringReader. string))]
     (binding [*read-eval* false]
       [(read r)
-       (read r)] )))
+       (read r)])))
 
 (defn convert-clj [result item]
   (let [kw (first item)]
@@ -54,13 +54,18 @@
 
 (defn utils
   "I don't do a lot."
-  [project & [ & commands ]]
-  (cond
-    (empty? commands) (leiningen.core.main/warn "No arguments provided")
-    (not-empty (is-all-valid-functions commands) ) (leiningen.core.main/exit)
-    :else
-    (as-> (pmap #(clj-to-map (download-function %)) commands) data
-          (agreegate data)
-          (assoc data :project-name (:name project))
-          (parser/render-file "templates/template.clj" data)
-          (spit (project-name-to-folder project) data))))
+  [project]
+  (let [functions (get-in project [:utils :functions])
+        path (get-in project [:utils :path] (project-name-to-folder project))]
+    (cond
+      (empty? functions) (leiningen.core.main/warn "Cannot find functions argument for utils plugin")
+      (not-empty (is-all-valid-functions functions)) (leiningen.core.main/exit)
+      :else
+      (as-> (pmap #(clj-to-map (download-function %)) functions) data
+            (agreegate data)
+            (assoc data :project-name (:name project))
+            (parser/render-file "templates/template.clj" data)
+            (try
+              (spit path data)
+              (catch Exception e
+                (println "Failed to write functions to the file due to: " (.getMessage e))))))))
